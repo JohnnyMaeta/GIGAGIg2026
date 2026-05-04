@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIプロンプトコピーツール | GIGAGig2026</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #6366f1;
+            --accent-primary-hover: #4f46e5;
+            --accent-secondary: #ec4899;
+            --accent-secondary-hover: #db2777;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success-color: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 800px;
+            animation: fadeIn Down 0.8s ease-out;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #f8fafc, #a5b4fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        main {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .prompt-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .emoji-box {
+            font-size: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .prompt-title h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .prompt-title p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .prompt-content {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            height: 350px;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
+        .prompt-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .prompt-content::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #4338ca 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-primary-hover) 0%, #3730a3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 外部AIリンクへのクイックジャンプ */
+        .external-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+        }
+
+        .external-links p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .ext-btn {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .ext-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+        }
+
+        /* トースト通知 */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--accent-primary-hover);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .card {
+                padding: 24px;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="badge">PROMPT DIRECTORY</span>
+        <h1>AIプロンプト コピーツール</h1>
+        <p class="subtitle">Gemini以外のAI（ChatGPT, Claudeなど）を活用したい方向けのプロンプト集です。<br>ボタン一つでコピーしてすぐに使い始められます。</p>
+    </header>
+
+    <main>
+        <!-- ふりかえりくんカード -->
+        <div class="card">
+            <div class="card-header">
+                <div class="prompt-info">
+                    <div class="emoji-box">📝</div>
+                    <div class="prompt-title">
+                        <h2>ふりかえりくん</h2>
+                        <p>総合的な学習の時間用：振り返り・フィードバック支援プロンプト</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- プロンプトの中身 -->
+            <div class="prompt-content" id="prompt-furikaeri">あなたは小学生の総合的な学習をサポートする優しいアシスタントです。子どもたちが書いた振り返り文を読んで、温かく建設的なフィードバックを返してください。
+【確認する8つの観点】
+① 分かったこと・できたこと
+② 分からなかったこと・できなかったこと
+③ 不思議に思ったこと
+④ 友達の考えを聞いて気づいたこと
+⑤ 友達の考えを聞いてすごいと思ったこと
+⑥ もっと考えてみたくなったこと
+⑦ 生活の中で使えそうだと思ったこと
+⑧ もっと勉強してみたいと思ったこと
+【判定の柔軟性】
+以下のような言い換えも含めて判定してください：- ①：分かった/理解できた/学んだ/知った- ②：分からない/難しかった/疑問に思った- ③：不思議/なぜ/どうして/もし〜なら- ④⑤：友達の意見/発表を聞いて/他の人を見て- ⑥：もっと考えたい/調べたい/次は〜したい- ⑦：生活で使える/役に立つ/家や学校で試す- ⑧：もっと勉強したい/詳しく知りたい
+【重要：出力形式の厳格な条件分岐】
+■ 観点が1つ以上含まれている場合：
+ 第1段階：子どもへの褒めるフィードバック
+ 第2段階：提出用フォーマット（区切り線と一言添えの後）
+■ 観点が1つも含まれていない場合：
+ 第1段階：書き直し指示のみ
+ （重要：この場合、提出用フォーマットは絶対に出力しない）
+【フィードバック内容】
+■ 観点が1つ以上含まれている場合：- 最初に全体を褒める- 含まれている観点ごとに具体的に褒める- 子どもの表現を引用しながらコメント- 150-200字程度でまとめる- 適度に絵文字を使って親しみやすくする- 名前があれば最初に呼びかける
+■ 観点が1つも含まれていない場合：- 振り返りを書いたことへの感謝を伝える- 「この振り返りだと、先生にあなたの学びが伝わりにくいので、書き直してもう一度送ってください」とはっきり指示- 8つの観点を箇条書きで提示- 「この中から1つ以上選んで、もう一度書き直してください」と明確に依頼- 励ましの言葉で締めくくる- 提出用フォーマットは絶対に出力しない【提出用フォーマット（観点が1つ以上含まれている場合のみ）】
+---
+先生に提出する時は、ここから下の部分をコピーして使ってね！📝
+========== 提出用 ==========
+【子どもの振り返り】
+[子どもが入力した振り返り文をそのまま引用]
+【学びのサポーターより】
+[第1段階 of フィードバック内容をそのまま再掲載]
+【先生用情報】検出した観点: [該当番号をスペース区切りで記載。例「① ② ⑤」]
+================================
+【必ず守ること】- 小学生にも分かりやすい言葉を使う- 観点が含まれていない場合は、はっきりと書き直しを指示する- 書き直し指示の際も温かい口調を保つ- 条件分岐を厳密に守る- 提出用フォーマットの前に必ず一言添える</div>
+
+            <!-- アクションボタン -->
+            <div class="action-group">
+                <button class="btn btn-primary" onclick="copyPrompt('prompt-furikaeri')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    プロンプトをコピーする
+                </button>
+            </div>
+
+            <!-- 外部AIリンクへのクイックジャンプ -->
+            <div class="external-links">
+                <p>💡 コピーしたら、お好きなAIを開いて貼り付けてください：</p>
+                <a href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" class="ext-btn">ChatGPT を開く</a>
+                <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer" class="ext-btn">Claude を開く</a>
+                <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" class="ext-btn">Gemini を開く</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- トースト -->
+    <div id="toast">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        クリップボードにコピーしました！
+    </div>
+
+    <footer>
+        <p>© 2026 GIGAGig2026 | <a href="README.md">トップ（README）に戻る</a></p>
+    </footer>
+
+    <script>
+        function copyPrompt(elementId) {
+            const promptText = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(promptText).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('コピーに失敗しました:', err);
+                // フォールバック
+                const textArea = document.createElement('textarea');
+                textArea.value = promptText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast();
+                } catch (e) {
+                    alert('コピーできませんでした。お使いのブラウザで手動で選択してコピーしてください。');
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
